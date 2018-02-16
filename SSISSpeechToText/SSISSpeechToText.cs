@@ -65,6 +65,11 @@ namespace Martin.SQLServer.Dts
 
         #region private variables
         /// <summary>
+        /// Used when an Event needs to be canceled.
+        /// </summary>
+        private bool cancelEvent;
+
+        /// <summary>
         /// Stores the Bing API subscription key
         /// </summary>
         private string SubscriptionKey;
@@ -138,11 +143,140 @@ namespace Martin.SQLServer.Dts
             AddOutputTypeProperty(outputTimecodesColumn, OutputTypeEnum.Timecode);
 
         }
+        #endregion
 
+        #region PerformUpgrade
+        /// <summary>
+        /// If this component needs to add new properties, that aren't handled in the initial version, then this code will be updated.
+        /// </summary>
+        /// <param name="pipelineVersion"></param>
+        public override void PerformUpgrade(int pipelineVersion)
+        {
+            base.PerformUpgrade(pipelineVersion);
+        }
+        #endregion
 
+        #region PerformDowngrade
+        /// <summary>
+        /// If you have a different "version" of your component in the version of SSIS then this is where you
+        /// tweak it.  https://docs.microsoft.com/en-us/sql/integration-services/extending-packages-custom-objects/support-multi-targeting-in-your-custom-components
+        /// </summary>
+        /// <param name="pipelineVersion"></param>
+        /// <param name="targetServerVersion"></param>
+        public override void PerformDowngrade(int pipelineVersion, DTSTargetServerVersion targetServerVersion)
+        {
+            base.PerformDowngrade(pipelineVersion, targetServerVersion);
+        }
+        #endregion
+
+        #region Validate
+
+        /// <summary>
+        /// Called repeatedly when the component is edited in the designer, and once at the beginning of execution.
+        /// Verifies the following:
+        /// 1. Check that there is only one output
+        /// 2. Check that there is only one input
+        /// 3. Check that the required CustomProperties exist (and are valid)
+        /// 4. Check that the required output columns are present and correct
+        /// 5. The base class validation succeeds.
+        /// </summary>
+        /// <returns>The status of the validation</returns>
+        public override DTSValidationStatus Validate()
+        {
+            if (ComponentMetaData.InputCollection.Count != 1)
+            {
+                this.InternalFireError("There is more than one input in the collection.");
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+            if (ComponentMetaData.OutputCollection.Count != 1)
+            {
+                this.InternalFireError("There is more than one output in the collection.");
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+
+            if (ComponentMetaData.CustomPropertyCollection.Count != 5)
+            {
+                this.InternalFireError("There is either to many or not enough custom properties.");
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+
+            bool foundSubscriptionKey = false;
+            bool foundChannelSeparation = false;
+            bool foundLanguage = false;
+            bool foundOperationMode = false;
+
+            // Search for all the property names.
+            foreach(IDTSCustomProperty100 cp in ComponentMetaData.CustomPropertyCollection)
+            {
+                switch (cp.Name)
+                {
+                    case Utility.ConstSubscriptionKeyPropName:
+                        if (cp.Value == "SubscriptionKeyRequired")
+                        {
+                            this.InternalFireError("Subscription Key must be set to real value");
+                            return DTSValidationStatus.VS_ISBROKEN;
+                        }
+                        foundSubscriptionKey = true;
+                        break;
+                    case Utility.ConstChannelSeparationPropName:
+                        if (cp.TypeConverter != typeof(ChannelSeparationEnum).AssemblyQualifiedName)
+                        {
+                            this.InternalFireError("Channel Separation data type is incorrect.");
+                            return DTSValidationStatus.VS_ISCORRUPT;
+                        }
+                        foundChannelSeparation = true;
+                        break;
+                    case Utility.ConstLanguagePropName:
+                        if (cp.TypeConverter != typeof(SpeechLanguageEnum).AssemblyQualifiedName)
+                        {
+                            this.InternalFireError("API Language data type is incorrect.");
+                            return DTSValidationStatus.VS_ISCORRUPT;
+                        }
+                        foundLanguage = true;
+                        break;
+                    case Utility.ConstOperationModePropName:
+                        if (cp.TypeConverter != typeof(OperationModeEnum).AssemblyQualifiedName)
+                        {
+                            this.InternalFireError("Operation Mode data type is incorrect.");
+                            return DTSValidationStatus.VS_ISCORRUPT;
+                        }
+                        foundOperationMode = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (!foundSubscriptionKey)
+            {
+                this.InternalFireError(string.Format("Custom Property {0} is missing.", Utility.SubscriptionKeyPropName));
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+
+            if (!foundOperationMode)
+            {
+                this.InternalFireError(string.Format("Custom Property {0} is missing.", Utility.OperationModePropName));
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+
+            if (!foundLanguage)
+            {
+                this.InternalFireError(string.Format("Custom Property {0} is missing.", Utility.LanguagePropName));
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+
+            if (!foundChannelSeparation)
+            {
+                this.InternalFireError(string.Format("Custom Property {0} is missing.", Utility.ChannelSeparationPropName));
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+
+            return base.Validate();
+        }
 
 
         #endregion
+
 
         #endregion
 
@@ -218,5 +352,17 @@ namespace Martin.SQLServer.Dts
 
 
         #endregion
+
+        #region InternalFireError
+        /// <summary>
+        /// Sticks an Error message out to the Error Log.
+        /// </summary>
+        /// <param name="message">The error message to fire</param>
+        private void InternalFireError(string message)
+        {
+            ComponentMetaData.FireError(0, ComponentMetaData.Name, message, string.Empty, 0, out this.cancelEvent);
+        }
+        #endregion
+
     }
 }

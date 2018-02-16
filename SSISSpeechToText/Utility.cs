@@ -12,7 +12,7 @@ namespace Martin.SQLServer.Dts
     public sealed class Utility
     {
 
-        private const string ConstOutputTypePropName = "OutputColumnType";
+        internal const string ConstOutputTypePropName = "OutputColumnType";
         /// <summary>
         /// Gets the output columns output type property name
         /// </summary>
@@ -24,7 +24,7 @@ namespace Martin.SQLServer.Dts
             }
         }
 
-        private const string ConstOutputChannelColumnName = "InputChannel";
+        internal const string ConstOutputChannelColumnName = "InputChannel";
         public static string OutputChannelColumnName
         { get
             {
@@ -32,7 +32,7 @@ namespace Martin.SQLServer.Dts
             }
         }
 
-        private const string ConstOutputSpeechColumnName = "SpeechTextResult";
+        internal const string ConstOutputSpeechColumnName = "SpeechTextResult";
         public static string OutputSpeechColumnName
         {
             get
@@ -41,7 +41,7 @@ namespace Martin.SQLServer.Dts
             }
         }
 
-        private const string ConstOutputTimecodeColumnName = "Timecode";
+        internal const string ConstOutputTimecodeColumnName = "Timecode";
         public static string OutputTimecodeColumnName
         {
             get
@@ -50,7 +50,7 @@ namespace Martin.SQLServer.Dts
             }
         }
 
-        private const string ConstSubscriptionKeyPropName = "SubscriptionKey";
+        internal const string ConstSubscriptionKeyPropName = "SubscriptionKey";
         public static string SubscriptionKeyPropName
         {
             get
@@ -59,7 +59,7 @@ namespace Martin.SQLServer.Dts
             }
         }
 
-        private const string ConstOperationModePropName = "OperationMode";
+        internal const string ConstOperationModePropName = "OperationMode";
         public static string OperationModePropName
         {
             get
@@ -68,7 +68,7 @@ namespace Martin.SQLServer.Dts
             }
         }
 
-        private const string ConstLanguagePropName = "APILanguage";
+        internal const string ConstLanguagePropName = "APILanguage";
         public static string LanguagePropName
         {
             get
@@ -77,7 +77,7 @@ namespace Martin.SQLServer.Dts
             }
         }
 
-        private const string ConstChannelSeparationPropName = "ChannelSeparation";
+        internal const string ConstChannelSeparationPropName = "ChannelSeparation";
         public static string ChannelSeparationPropName
         {
             get

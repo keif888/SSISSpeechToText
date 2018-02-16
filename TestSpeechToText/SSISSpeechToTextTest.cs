@@ -74,5 +74,275 @@ namespace Martin.SQLServer.Dts.Tests
             Assert.AreEqual((SSISSpeechToText.OutputTypeEnum)speechToText.OutputCollection[0].OutputColumnCollection[Utility.OutputTimecodeColumnName].CustomPropertyCollection[Utility.OutputColumnOutputTypePropName].Value, SSISSpeechToText.OutputTypeEnum.Timecode, "Output column OutputTimecodeColumnName purpose is wrong");
 
         }
+
+
+        [TestMethod]
+        public void TestValidateOK()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+
+            speechToText.CustomPropertyCollection[Utility.SubscriptionKeyPropName].Value = "NotTheDefault";
+
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISVALID;
+
+            Assert.AreEqual(expected, actual);
+
+        }
+
+        [TestMethod]
+        public void TestValidateMissingInput()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+
+            speechToTextInstance.DeleteInput(speechToText.InputCollection[0].ID);
+
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void TestValidateExtraInput()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+
+            speechToTextInstance.InsertInput(DTSInsertPlacement.IP_AFTER, speechToText.InputCollection[0].ID);
+
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void TestValidateMissingOutput()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+
+            speechToTextInstance.DeleteOutput(speechToText.OutputCollection[0].ID);
+
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void TestValidateExtraOutput()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+
+            speechToTextInstance.InsertOutput(DTSInsertPlacement.IP_AFTER, speechToText.OutputCollection[0].ID);
+
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void TestValidateMissingCustomProperty()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+
+            speechToText.CustomPropertyCollection.RemoveObjectByIndex(0);
+
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void TestValidateExtraCustomProperty()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+
+            speechToText.CustomPropertyCollection.New();
+
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void TestValidateCustomProperty_SubscriptionKey_Missing()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+            speechToText.CustomPropertyCollection.RemoveObjectByID(speechToText.CustomPropertyCollection[Utility.SubscriptionKeyPropName].ID);
+            speechToText.CustomPropertyCollection.New();
+
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void TestValidateCustomProperty_OperationMode_Missing()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+            speechToText.CustomPropertyCollection[Utility.SubscriptionKeyPropName].Value = "NotTheDefault";
+            speechToText.CustomPropertyCollection.RemoveObjectByID(speechToText.CustomPropertyCollection[Utility.OperationModePropName].ID);
+            speechToText.CustomPropertyCollection.New();
+
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void TestValidateCustomProperty_Language_Missing()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+            speechToText.CustomPropertyCollection[Utility.SubscriptionKeyPropName].Value = "NotTheDefault";
+            speechToText.CustomPropertyCollection.RemoveObjectByID(speechToText.CustomPropertyCollection[Utility.LanguagePropName].ID);
+            speechToText.CustomPropertyCollection.New();
+
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void TestValidateCustomProperty_ChannelSeparation_Missing()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+            speechToText.CustomPropertyCollection[Utility.SubscriptionKeyPropName].Value = "NotTheDefault";
+            speechToText.CustomPropertyCollection.RemoveObjectByID(speechToText.CustomPropertyCollection[Utility.ChannelSeparationPropName].ID);
+            speechToText.CustomPropertyCollection.New();
+
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+        }
+
     }
 }
