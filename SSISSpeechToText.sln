@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSISSpeechToText", "SSISSpeechToText\SSISSpeechToText.csproj", "{127B48F1-5939-472D-8951-E37997FFBCBE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSpeechToText", "TestSpeechToText\TestSpeechToText.csproj", "{9BFB63E8-4A82-4756-B7E3-CD1A0DD2141D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{127B48F1-5939-472D-8951-E37997FFBCBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{127B48F1-5939-472D-8951-E37997FFBCBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{127B48F1-5939-472D-8951-E37997FFBCBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BFB63E8-4A82-4756-B7E3-CD1A0DD2141D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BFB63E8-4A82-4756-B7E3-CD1A0DD2141D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BFB63E8-4A82-4756-B7E3-CD1A0DD2141D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BFB63E8-4A82-4756-B7E3-CD1A0DD2141D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
