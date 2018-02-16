@@ -30,13 +30,48 @@ namespace Martin.SQLServer.Dts.Tests
             int intActual = speechToText.CustomPropertyCollection.Count;
             Assert.AreEqual(intExpected, intActual, "Custom Property Collection Count is wrong");
 
-            for (int i = 0; i < intActual; i++)
-            {
-                string value = speechToText.CustomPropertyCollection[i].Name;
-                Assert.IsNotNull(value);
-            }
+            IDTSCustomProperty100 cpActual = speechToText.CustomPropertyCollection[Utility.SubscriptionKeyPropName];
+            Assert.AreEqual(cpActual.Name, Utility.SubscriptionKeyPropName, "Property name is wrong");
+            Assert.AreEqual(cpActual.ExpressionType, DTSCustomPropertyExpressionType.CPET_NOTIFY, "Expression type on SubscriptionKeyPropName is wrong");
 
-            // ToDo: Complete this unit test.
+            cpActual = speechToText.CustomPropertyCollection[Utility.OperationModePropName];
+            Assert.AreEqual(cpActual.Name, Utility.OperationModePropName, "Property name is wrong");
+            Assert.AreEqual(cpActual.ExpressionType, DTSCustomPropertyExpressionType.CPET_NONE, "Expression type on OperationModePropName is wrong");
+            Assert.AreEqual(cpActual.TypeConverter, typeof(SSISSpeechToText.OperationModeEnum).AssemblyQualifiedName, "Type Converter on OperationModePropName is wrong");
+
+            cpActual = speechToText.CustomPropertyCollection[Utility.LanguagePropName];
+            Assert.AreEqual(cpActual.Name, Utility.LanguagePropName, "Property name is wrong");
+            Assert.AreEqual(cpActual.ExpressionType, DTSCustomPropertyExpressionType.CPET_NONE, "Expression type on LanguagePropName is wrong");
+            Assert.AreEqual(cpActual.TypeConverter, typeof(SSISSpeechToText.SpeechLanguageEnum).AssemblyQualifiedName, "Type Converter on LanguagePropName is wrong");
+
+            cpActual = speechToText.CustomPropertyCollection[Utility.ChannelSeparationPropName];
+            Assert.AreEqual(cpActual.Name, Utility.ChannelSeparationPropName, "Property name is wrong");
+            Assert.AreEqual(cpActual.ExpressionType, DTSCustomPropertyExpressionType.CPET_NONE, "Expression type on ChannelSeparationPropName is wrong");
+            Assert.AreEqual(cpActual.TypeConverter, typeof(SSISSpeechToText.ChannelSeparationEnum).AssemblyQualifiedName, "Type Converter on ChannelSeparationPropName is wrong");
+
+            intExpected = 1;
+            intActual = speechToText.InputCollection.Count;
+            Assert.AreEqual(intExpected, intActual, "Input Collection Count is wrong");
+            Assert.AreEqual(speechToText.InputCollection[0].Name, "Input", "Input Name is Wrong");
+            Assert.AreEqual(speechToText.InputCollection[0].InputColumnCollection.Count, 0, "There are input columns");
+
+            intExpected = 1;
+            intActual = speechToText.OutputCollection.Count;
+            Assert.AreEqual(intExpected, intActual, "Output Collection Count is wrong");
+            Assert.AreEqual(speechToText.OutputCollection[0].Name, "SpeechOutput", "Output Name is Wrong");
+            Assert.AreEqual(speechToText.OutputCollection[0].OutputColumnCollection.Count, 3, "The number of output columns is wrong");
+
+            Assert.AreEqual(speechToText.OutputCollection[0].OutputColumnCollection[Utility.OutputChannelColumnName].Name, Utility.OutputChannelColumnName, "Output column name is wrong");
+            Assert.AreEqual(speechToText.OutputCollection[0].OutputColumnCollection[Utility.OutputChannelColumnName].DataType, DataType.DT_STR, "Output column OutputSpeechColumnName datatype is wrong");
+            Assert.AreEqual((SSISSpeechToText.OutputTypeEnum) speechToText.OutputCollection[0].OutputColumnCollection[Utility.OutputChannelColumnName].CustomPropertyCollection[Utility.OutputColumnOutputTypePropName].Value, SSISSpeechToText.OutputTypeEnum.Channel, "Output column OutputChannelColumnName purpose is wrong");
+
+            Assert.AreEqual(speechToText.OutputCollection[0].OutputColumnCollection[Utility.OutputSpeechColumnName].Name, Utility.OutputSpeechColumnName, "Output column name is wrong");
+            Assert.AreEqual(speechToText.OutputCollection[0].OutputColumnCollection[Utility.OutputSpeechColumnName].DataType, DataType.DT_TEXT, "Output column OutputSpeechColumnName datatype is wrong");
+            Assert.AreEqual((SSISSpeechToText.OutputTypeEnum)speechToText.OutputCollection[0].OutputColumnCollection[Utility.OutputSpeechColumnName].CustomPropertyCollection[Utility.OutputColumnOutputTypePropName].Value, SSISSpeechToText.OutputTypeEnum.Speech, "Output column OutputSpeechColumnName purpose is wrong");
+
+            Assert.AreEqual(speechToText.OutputCollection[0].OutputColumnCollection[Utility.OutputTimecodeColumnName].Name, Utility.OutputTimecodeColumnName, "Output column name is wrong");
+            Assert.AreEqual(speechToText.OutputCollection[0].OutputColumnCollection[Utility.OutputTimecodeColumnName].DataType, DataType.DT_DBTIME2, "Output column OutputTimecodeColumnName datatype is wrong");
+            Assert.AreEqual((SSISSpeechToText.OutputTypeEnum)speechToText.OutputCollection[0].OutputColumnCollection[Utility.OutputTimecodeColumnName].CustomPropertyCollection[Utility.OutputColumnOutputTypePropName].Value, SSISSpeechToText.OutputTypeEnum.Timecode, "Output column OutputTimecodeColumnName purpose is wrong");
 
         }
     }

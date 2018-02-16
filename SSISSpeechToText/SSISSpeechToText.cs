@@ -134,7 +134,7 @@ namespace Martin.SQLServer.Dts
             IDTSOutputColumn100 outputTimecodesColumn = output.OutputColumnCollection.New();
             outputTimecodesColumn.Name = Utility.OutputTimecodeColumnName;
             outputTimecodesColumn.Description = "Contains the time that this fragment of speech started at";
-            outputTimecodesColumn.SetDataTypeProperties(DataType.DT_DBTIME2, 0, 0, 0, 0);
+            outputTimecodesColumn.SetDataTypeProperties(DataType.DT_DBTIME2, 0, 0, 7, 0);
             AddOutputTypeProperty(outputTimecodesColumn, OutputTypeEnum.Timecode);
 
         }
