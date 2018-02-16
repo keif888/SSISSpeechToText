@@ -9,9 +9,9 @@ using System.Windows.Forms;
 
 namespace Martin.SQLServer.Dts
 {
-    public partial class SpeachToTextForm : Form
+    public partial class SpeechToTextForm : Form
     {
-        public SpeachToTextForm()
+        public SpeechToTextForm()
         {
             InitializeComponent();
         }

@@ -1,6 +1,6 @@
 ﻿namespace Martin.SQLServer.Dts
 {
-    partial class SpeachToTextForm
+    partial class SpeechToTextForm
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SpeachToTextForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SpeechToTextForm));
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -52,7 +52,7 @@
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.BTNCancel = new System.Windows.Forms.Button();
             this.BTNOk = new System.Windows.Forms.Button();
-            this.ToolTipSpeachToText = new System.Windows.Forms.ToolTip(this.components);
+            this.ToolTipSpeechToText = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -91,7 +91,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(178, 20);
             this.textBox1.TabIndex = 2;
-            this.ToolTipSpeachToText.SetToolTip(this.textBox1, "Enter your subscription key for \r\nAzure Cognitive Services\r\nBing Speach API");
+            this.ToolTipSpeechToText.SetToolTip(this.textBox1, "Enter your subscription key for \r\nAzure Cognitive Services\r\nBing Speech API");
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // groupBox1
@@ -109,7 +109,7 @@
             this.groupBox1.Size = new System.Drawing.Size(300, 164);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Speach Recognition Settings";
+            this.groupBox1.Text = "Speech Recognition Settings";
             // 
             // comboBox1
             // 
@@ -224,7 +224,7 @@
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(44, 13);
             this.label7.TabIndex = 8;
-            this.label7.Text = "Speach";
+            this.label7.Text = "Speech";
             // 
             // label8
             // 
@@ -262,7 +262,7 @@
             this.BTNOk.Text = "Ok";
             this.BTNOk.UseVisualStyleBackColor = true;
             // 
-            // SpeachToTextForm
+            // SpeechToTextForm
             // 
             this.AcceptButton = this.BTNOk;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -278,9 +278,9 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "SpeachToTextForm";
+            this.Name = "SpeechToTextForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-            this.Text = "Speach To Text";
+            this.Text = "Speech To Text";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -296,7 +296,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.ToolTip ToolTipSpeachToText;
+        private System.Windows.Forms.ToolTip ToolTipSpeechToText;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ComboBox comboBox3;

@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Martin.SQLServer.Dts</RootNamespace>
-    <AssemblyName>SSISSpeachToText</AssemblyName>
+    <AssemblyName>SSISSpeechToText</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -33,7 +33,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>SSISSpeachToText.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>SSISSpeechToText.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>if_microphone_497229.ico</ApplicationIcon>
@@ -78,23 +78,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SpeachToTextForm.cs">
+    <Compile Include="SpeechToTextForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SpeachToTextForm.Designer.cs">
-      <DependentUpon>SpeachToTextForm.cs</DependentUpon>
+    <Compile Include="SpeechToTextForm.Designer.cs">
+      <DependentUpon>SpeechToTextForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="SSISSpeachToText.cs" />
+    <Compile Include="SSISSpeechToText.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="SSISSpeachToText.snk" />
+    <None Include="SSISSpeechToText.snk" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="if_microphone_497229.ico" />
-    <EmbeddedResource Include="SpeachToTextForm.resx">
-      <DependentUpon>SpeachToTextForm.cs</DependentUpon>
+    <EmbeddedResource Include="SpeechToTextForm.resx">
+      <DependentUpon>SpeechToTextForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
