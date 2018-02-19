@@ -98,7 +98,7 @@ namespace Martin.SQLServer.Dts.Tests
             DTSValidationStatus expected = DTSValidationStatus.VS_ISVALID;
 
             Assert.AreEqual(expected, actual);
-
+            Assert.AreEqual(0, events.errorMessages.Count, "There are error messages");
         }
 
         [TestMethod]
@@ -123,6 +123,7 @@ namespace Martin.SQLServer.Dts.Tests
             DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
 
             Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: The required input is missing from the collection.", events.errorMessages[0]);
         }
 
         [TestMethod]
@@ -147,6 +148,7 @@ namespace Martin.SQLServer.Dts.Tests
             DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
 
             Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: There is more than one input in the collection.", events.errorMessages[0]);
         }
 
         [TestMethod]
@@ -171,6 +173,7 @@ namespace Martin.SQLServer.Dts.Tests
             DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
 
             Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: The required output is missing from the collection.", events.errorMessages[0]);
         }
 
         [TestMethod]
@@ -195,6 +198,7 @@ namespace Martin.SQLServer.Dts.Tests
             DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
 
             Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: There is more than one output in the collection.", events.errorMessages[0]);
         }
 
         [TestMethod]
@@ -219,6 +223,7 @@ namespace Martin.SQLServer.Dts.Tests
             DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
 
             Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: There is either to many or not enough custom properties.", events.errorMessages[0]);
         }
 
         [TestMethod]
@@ -243,6 +248,7 @@ namespace Martin.SQLServer.Dts.Tests
             DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
 
             Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: There is either to many or not enough custom properties.", events.errorMessages[0]);
         }
 
         [TestMethod]
@@ -267,6 +273,7 @@ namespace Martin.SQLServer.Dts.Tests
             DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
 
             Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: Custom Property SubscriptionKey is missing.", events.errorMessages[0]);
         }
 
         [TestMethod]
@@ -292,6 +299,7 @@ namespace Martin.SQLServer.Dts.Tests
             DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
 
             Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: Custom Property OperationMode is missing.", events.errorMessages[0]);
         }
 
         [TestMethod]
@@ -317,6 +325,7 @@ namespace Martin.SQLServer.Dts.Tests
             DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
 
             Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: Custom Property APILanguage is missing.", events.errorMessages[0]);
         }
 
         [TestMethod]
@@ -342,7 +351,124 @@ namespace Martin.SQLServer.Dts.Tests
             DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
 
             Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: Custom Property ChannelSeparation is missing.", events.errorMessages[0]);
         }
+
+        [TestMethod]
+        public void TestOutputColumn_InvalidCustomProperty()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+            speechToText.CustomPropertyCollection[Utility.SubscriptionKeyPropName].Value = "NotTheDefault";
+            // Before this is default setup for a clean component
+
+            IDTSCustomProperty100 cp = speechToText.OutputCollection[0].OutputColumnCollection[0].CustomPropertyCollection.New();
+            cp.Name = "IAmInvalid";
+            cp.Value = "IAmInvalid";
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: Output Column InputChannel has invalid property IAmInvalid.", events.errorMessages[0]);
+        }
+
+        [TestMethod]
+        public void TestOutputColumn_InputChannel_Missing()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+            speechToText.CustomPropertyCollection[Utility.SubscriptionKeyPropName].Value = "NotTheDefault";
+            // Before this is default setup for a clean component
+
+            speechToText.OutputCollection[0].OutputColumnCollection.RemoveObjectByID(speechToText.OutputCollection[0].OutputColumnCollection[Utility.OutputChannelColumnName].ID);
+            IDTSOutputColumn100 tempCol = speechToText.OutputCollection[0].OutputColumnCollection.New();
+            tempCol.Name = "TempCol";
+            tempCol.SetDataTypeProperties(DataType.DT_STR, 10, 0, 0, 1252);
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: Required Output Column InputChannel is missing.", events.errorMessages[0]);
+        }
+
+        [TestMethod]
+        public void TestOutputColumn_SpeechTextResult_Missing()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+            speechToText.CustomPropertyCollection[Utility.SubscriptionKeyPropName].Value = "NotTheDefault";
+            // Before this is default setup for a clean component
+
+            speechToText.OutputCollection[0].OutputColumnCollection.RemoveObjectByID(speechToText.OutputCollection[0].OutputColumnCollection[Utility.OutputSpeechColumnName].ID);
+            IDTSOutputColumn100 tempCol = speechToText.OutputCollection[0].OutputColumnCollection.New();
+            tempCol.Name = "TempCol";
+            tempCol.SetDataTypeProperties(DataType.DT_STR, 10, 0, 0, 1252);
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: Required Output Column SpeechTextResult is missing.", events.errorMessages[0]);
+        }
+
+        [TestMethod]
+        public void TestOutputColumn_Timecode_Missing()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+            speechToText.CustomPropertyCollection[Utility.SubscriptionKeyPropName].Value = "NotTheDefault";
+            // Before this is default setup for a clean component
+
+            speechToText.OutputCollection[0].OutputColumnCollection.RemoveObjectByID(speechToText.OutputCollection[0].OutputColumnCollection[Utility.OutputTimecodeColumnName].ID);
+            IDTSOutputColumn100 tempCol = speechToText.OutputCollection[0].OutputColumnCollection.New();
+            tempCol.Name = "TempCol";
+            tempCol.SetDataTypeProperties(DataType.DT_STR, 10, 0, 0, 1252);
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: Required Output Column Timecode is missing.", events.errorMessages[0]);
+        }
+
 
     }
 }

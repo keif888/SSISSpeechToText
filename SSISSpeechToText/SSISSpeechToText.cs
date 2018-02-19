@@ -183,12 +183,22 @@ namespace Martin.SQLServer.Dts
         /// <returns>The status of the validation</returns>
         public override DTSValidationStatus Validate()
         {
-            if (ComponentMetaData.InputCollection.Count != 1)
+            if (ComponentMetaData.InputCollection.Count < 1)
+            {
+                this.InternalFireError("The required input is missing from the collection.");
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+            if (ComponentMetaData.InputCollection.Count > 1)
             {
                 this.InternalFireError("There is more than one input in the collection.");
                 return DTSValidationStatus.VS_ISCORRUPT;
             }
-            if (ComponentMetaData.OutputCollection.Count != 1)
+            if (ComponentMetaData.OutputCollection.Count < 1)
+            {
+                this.InternalFireError("The required output is missing from the collection.");
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+            if (ComponentMetaData.OutputCollection.Count > 1)
             {
                 this.InternalFireError("There is more than one output in the collection.");
                 return DTSValidationStatus.VS_ISCORRUPT;
@@ -270,6 +280,57 @@ namespace Martin.SQLServer.Dts
                 this.InternalFireError(string.Format("Custom Property {0} is missing.", Utility.ChannelSeparationPropName));
                 return DTSValidationStatus.VS_ISCORRUPT;
             }
+
+            // Test that the required output columns are their.
+            bool foundInputChannel = false;
+            bool foundSpeechText = false;
+            bool foundTimeCode = false;
+            foreach(IDTSOutputColumn100 oc in ComponentMetaData.OutputCollection[0].OutputColumnCollection)
+            {
+                foreach (IDTSCustomProperty100 cp in oc.CustomPropertyCollection)
+                {
+                    if (cp.Name == Utility.OutputColumnOutputTypePropName)
+                    {
+                        switch ((OutputTypeEnum)oc.CustomPropertyCollection[Utility.OutputColumnOutputTypePropName].Value)
+                        {
+                            case OutputTypeEnum.Channel:
+                                foundInputChannel = true;
+                                break;
+                            case OutputTypeEnum.Speech:
+                                foundSpeechText = true;
+                                break;
+                            case OutputTypeEnum.Timecode:
+                                foundTimeCode = true;
+                                break;
+                            default:
+                                // ToDo: Check passthrough columns are connected upstream.
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        this.InternalFireError(string.Format("Output Column {0} has invalid property {1}.", oc.Name, cp.Name));
+                        return DTSValidationStatus.VS_ISCORRUPT;
+                    }
+                }
+            }
+            if (!foundInputChannel)
+            {
+                this.InternalFireError(string.Format("Required Output Column {0} is missing.", Utility.OutputChannelColumnName));
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+            if (!foundSpeechText)
+            {
+                this.InternalFireError(string.Format("Required Output Column {0} is missing.", Utility.OutputSpeechColumnName));
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+            if (!foundTimeCode)
+            {
+                this.InternalFireError(string.Format("Required Output Column {0} is missing.", Utility.OutputTimecodeColumnName));
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+
+
 
             return base.Validate();
         }
