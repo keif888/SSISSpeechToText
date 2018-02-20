@@ -262,14 +262,14 @@
             this.RTBAbout.Enabled = false;
             this.RTBAbout.Location = new System.Drawing.Point(13, 183);
             this.RTBAbout.Name = "RTBAbout";
-            this.RTBAbout.Size = new System.Drawing.Size(751, 141);
+            this.RTBAbout.Size = new System.Drawing.Size(751, 174);
             this.RTBAbout.TabIndex = 8;
             this.RTBAbout.Text = resources.GetString("RTBAbout.Text");
             // 
             // BTNCancel
             // 
             this.BTNCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.BTNCancel.Location = new System.Drawing.Point(770, 300);
+            this.BTNCancel.Location = new System.Drawing.Point(771, 334);
             this.BTNCancel.Name = "BTNCancel";
             this.BTNCancel.Size = new System.Drawing.Size(75, 23);
             this.BTNCancel.TabIndex = 9;
@@ -278,7 +278,7 @@
             // 
             // BTNOk
             // 
-            this.BTNOk.Location = new System.Drawing.Point(770, 271);
+            this.BTNOk.Location = new System.Drawing.Point(771, 305);
             this.BTNOk.Name = "BTNOk";
             this.BTNOk.Size = new System.Drawing.Size(75, 23);
             this.BTNOk.TabIndex = 10;
@@ -291,7 +291,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.BTNCancel;
-            this.ClientSize = new System.Drawing.Size(858, 333);
+            this.ClientSize = new System.Drawing.Size(858, 369);
             this.Controls.Add(this.BTNOk);
             this.Controls.Add(this.BTNCancel);
             this.Controls.Add(this.RTBAbout);
@@ -300,7 +300,9 @@
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(874, 408);
             this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(874, 408);
             this.Name = "SpeechToTextForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Speech To Text";

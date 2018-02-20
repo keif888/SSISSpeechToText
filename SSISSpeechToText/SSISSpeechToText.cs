@@ -12,7 +12,7 @@ namespace Martin.SQLServer.Dts
         , CurrentVersion = 0
         , DisplayName = "SSIS Speech To Text"
         , Description = "Uses Microsoft Cognitive Services to translate Speech to text"
-        , IconResource = "Martin.SQLServer.Dts.key.ico"
+        , IconResource = "Martin.SQLServer.Dts.if_microphone_497229.ico"
 #if SQL2017
         , UITypeName = "Martin.SQLServer.Dts.SSISSpeechToTextUI, SSISSpeechToText, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b4fe731b01e0026b"
 #endif
