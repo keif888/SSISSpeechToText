@@ -277,6 +277,32 @@ namespace Martin.SQLServer.Dts.Tests
         }
 
         [TestMethod]
+        public void TestValidateCustomProperty_SubscriptionKey_NotSet()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+
+            //speechToText.CustomPropertyCollection[Utility.SubscriptionKeyPropName].Value = "NotTheDefault";
+
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISBROKEN;
+
+            Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: Subscription Key must be set to real value", events.errorMessages[0]);
+        }
+
+
+        [TestMethod]
         public void TestValidateCustomProperty_OperationMode_Missing()
         {
             Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();

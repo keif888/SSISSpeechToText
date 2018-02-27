@@ -221,7 +221,7 @@ namespace Martin.SQLServer.Dts
                 switch (cp.Name)
                 {
                     case Utility.ConstSubscriptionKeyPropName:
-                        if (cp.Value == "SubscriptionKeyRequired")
+                        if (string.Compare(cp.Value.ToString(), "SubscriptionKeyRequired", StringComparison.InvariantCultureIgnoreCase) == 0)
                         {
                             this.InternalFireError("Subscription Key must be set to real value");
                             return DTSValidationStatus.VS_ISBROKEN;
