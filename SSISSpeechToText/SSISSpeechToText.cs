@@ -89,10 +89,16 @@ namespace Martin.SQLServer.Dts
         /// </summary>
         private ChannelSeparationEnum ChannelSeparation;
 
+        /// <summary>
+        /// Stores the actual async output buffer that will receive all the output data
+        /// </summary>
+        private PipelineBuffer outputBuffer;
+
         #endregion
 
 
-        #region Design Time
+        #region Background Tasks
+
         #region ProvideComponentProperties
         /// <summary>
         /// Sets up all the base properties for the component to utilise
@@ -338,9 +344,108 @@ namespace Martin.SQLServer.Dts
 
         #endregion
 
+        #region ReinitializeMetaData
+
+        /// <summary>
+        /// Called when VS_NEEDSNEWMETADATA is returned from Validate. 
+        /// Reset all of the output columns.
+        /// </summary>
+        public override void ReinitializeMetaData()
+        {
+            if (ComponentMetaData.InputCollection.Count == 0)
+            {
+                base.ProvideComponentProperties();
+            }
+
+            if (ComponentMetaData.OutputCollection.Count == 0)
+            {
+                base.ProvideComponentProperties();
+            }
+
+            base.ReinitializeMetaData();
+        }
 
         #endregion
 
+        #endregion
+
+        #region Design Time
+        #endregion
+
+        #region Run Time
+
+        #region PreExecute
+        /// <summary>
+        /// Sets up all the in memory column information cache and objects that are reused in ProcessInput
+        /// ToDo:
+        /// Cache input column information
+        /// Cache output column information
+        /// Setup NAudio objects
+        /// Setup SpeechClient objects
+        /// </summary>
+        public override void PreExecute()
+        {
+            base.PreExecute();
+        }
+        #endregion
+
+        #region PrimeOutput
+
+        /// <summary>
+        /// Sets up the output buffer for use within the component
+        /// </summary>
+        /// <param name="outputs"></param>
+        /// <param name="outputIDs"></param>
+        /// <param name="buffers"></param>
+        public override void PrimeOutput(int outputs, int[] outputIDs, PipelineBuffer[] buffers)
+        {
+            if (buffers.Length > 0)
+            {
+                outputBuffer = buffers[0];
+            }
+            else
+            {
+                throw new Exception("buffers not configured in PrimeOutput.");
+            }
+        }
+        #endregion
+
+        #region ProcessInput
+
+        /// <summary>
+        /// Called at run time when a PipelineBuffer from an upstream component is available to the component to let the component process the incoming rows.
+        /// ToDo:
+        /// Loop through all the data in the buffer
+        /// As each record is read
+        ///     Open the audio file
+        ///     Split channels (if required)
+        ///     For each audio stream
+        ///         Look for pauses in audio
+        ///             Send PCM data to SpeechClient for each segment of speach (up to pause)
+        ///             Send text from SpeechClient to output
+        /// Close outputBuffer on buffer.EndOfRowset
+        /// </summary>
+        /// <param name="inputID">The ID of the input of the component.</param>
+        /// <param name="buffer">The PipelineBuffer object.</param>
+        public override void ProcessInput(int inputID, PipelineBuffer buffer)
+        {
+            base.ProcessInput(inputID, buffer);
+        }
+        #endregion
+
+        #region PostExecute
+        /// <summary>
+        /// Closes down any in memory column caches and objects from PreExecute.
+        /// Also lets the 
+        /// </summary>
+        public override void PostExecute()
+        {
+            base.PostExecute();
+        }
+        #endregion
+
+
+        #endregion
 
         #region Property interaction
 
