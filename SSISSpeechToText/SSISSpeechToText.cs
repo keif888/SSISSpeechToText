@@ -385,6 +385,13 @@ namespace Martin.SQLServer.Dts
         /// </summary>
         public override void PreExecute()
         {
+            bool fireAgain = true;
+            this.ComponentMetaData.FireInformation(0, this.ComponentMetaData.Name, "Pre-Execute phase is beginning.", string.Empty, 0, ref fireAgain);
+            // Load up the custom properties.
+            SubscriptionKey = (string)ComponentMetaData.CustomPropertyCollection[Utility.SubscriptionKeyPropName].Value;
+            OperationMode = (OperationModeEnum)ComponentMetaData.CustomPropertyCollection[Utility.OperationModePropName].Value;
+            Language = (SpeechLanguageEnum)ComponentMetaData.CustomPropertyCollection[Utility.LanguagePropName].Value;
+            ChannelSeparation = (ChannelSeparationEnum)ComponentMetaData.CustomPropertyCollection[Utility.ChannelSeparationPropName].Value;
             base.PreExecute();
         }
         #endregion
