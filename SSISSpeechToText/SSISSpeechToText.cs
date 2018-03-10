@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-//RM using Microsoft.CognitiveServices.SpeechRecognition;
+using Microsoft.CognitiveServices.SpeechRecognition;
 using Microsoft.SqlServer.Dts.Pipeline;
 using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using Microsoft.SqlServer.Dts.Runtime.Wrapper;
@@ -100,12 +100,13 @@ namespace Martin.SQLServer.Dts
         /// <summary>
         /// The data recognition client
         /// </summary>
-//RM         private DataRecognitionClient dataClient;
+        private DataRecognitionClient dataClient;
 
         /// <summary>
         /// Stores the recognition mode.  Retrieved from custom properties.
         /// </summary>
-//RM         private SpeechRecognitionMode speechRecognitionMode;
+        /// This breaks the tests, as there is a COMException 0xC0048021 being thrown.
+        private SpeechRecognitionMode speechRecognitionMode;
 
         /// <summary>
         /// Stores the URI to connect to the Authentication service.
@@ -647,7 +648,7 @@ namespace Martin.SQLServer.Dts
         #endregion
 
 
-#if asdfasdf
+//#if asdfasdf
 #region Speech Client Interaction
 
         /// <summary>
@@ -745,6 +746,6 @@ namespace Martin.SQLServer.Dts
         }
 
 #endregion
-#endif
+//#endif
     }
 }
