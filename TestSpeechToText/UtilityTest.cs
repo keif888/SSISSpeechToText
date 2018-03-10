@@ -79,5 +79,13 @@ namespace Martin.SQLServer.Dts.Tests
             actual = Utility.ChannelSeparationPropName;
             Assert.AreEqual("ChannelSeparation", actual);
         }
+
+        [TestMethod()]
+        public void AuthenticationUriPropNameTest()
+        {
+            string actual;
+            actual = Utility.AuthenticationUriPropName;
+            Assert.AreEqual("AuthenticationUri", actual);
+        }
     }
 }

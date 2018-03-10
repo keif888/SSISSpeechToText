@@ -85,5 +85,14 @@ namespace Martin.SQLServer.Dts
                 return ConstChannelSeparationPropName;
             }
         }
+
+        internal const string ConstAuthenticationUriPropName = "AuthenticationUri";
+        public static string AuthenticationUriPropName
+        {
+            get
+            {
+                return ConstAuthenticationUriPropName;
+            }
+        }
     }
 }

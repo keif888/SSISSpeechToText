@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+//RM using Microsoft.CognitiveServices.SpeechRecognition;
 using Microsoft.SqlServer.Dts.Pipeline;
 using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using Microsoft.SqlServer.Dts.Runtime.Wrapper;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace Martin.SQLServer.Dts
 {
@@ -94,6 +97,22 @@ namespace Martin.SQLServer.Dts
         /// </summary>
         private PipelineBuffer outputBuffer;
 
+        /// <summary>
+        /// The data recognition client
+        /// </summary>
+//RM         private DataRecognitionClient dataClient;
+
+        /// <summary>
+        /// Stores the recognition mode.  Retrieved from custom properties.
+        /// </summary>
+//RM         private SpeechRecognitionMode speechRecognitionMode;
+
+        /// <summary>
+        /// Stores the URI to connect to the Authentication service.
+        /// ToDo: Implement this as a Custom Property, and add to UI.
+        /// </summary>
+        private string AuthenticationUri;
+
         #endregion
 
 
@@ -117,6 +136,7 @@ namespace Martin.SQLServer.Dts
             SSISSpeechToText.AddOperationModeProperty(this.ComponentMetaData);
             SSISSpeechToText.AddLanguageProperty(this.ComponentMetaData);
             SSISSpeechToText.AddChannelSeparationProperty(this.ComponentMetaData);
+            SSISSpeechToText.AddAuthenticationUriProperty(this.ComponentMetaData);
 
             // Name the input and output, and make the output asynchronous.
             ComponentMetaData.InputCollection[0].Name = "Input";
@@ -149,6 +169,7 @@ namespace Martin.SQLServer.Dts
             AddOutputTypeProperty(outputTimecodesColumn, OutputTypeEnum.Timecode);
 
         }
+
         #endregion
 
         #region PerformUpgrade
@@ -210,7 +231,7 @@ namespace Martin.SQLServer.Dts
                 return DTSValidationStatus.VS_ISCORRUPT;
             }
 
-            if (ComponentMetaData.CustomPropertyCollection.Count != 5)
+            if (ComponentMetaData.CustomPropertyCollection.Count != 6)
             {
                 this.InternalFireError("There is either to many or not enough custom properties.");
                 return DTSValidationStatus.VS_ISCORRUPT;
@@ -220,9 +241,10 @@ namespace Martin.SQLServer.Dts
             bool foundChannelSeparation = false;
             bool foundLanguage = false;
             bool foundOperationMode = false;
+            bool foundAuthentication = false;
 
             // Search for all the property names.
-            foreach(IDTSCustomProperty100 cp in ComponentMetaData.CustomPropertyCollection)
+            foreach (IDTSCustomProperty100 cp in ComponentMetaData.CustomPropertyCollection)
             {
                 switch (cp.Name)
                 {
@@ -258,6 +280,14 @@ namespace Martin.SQLServer.Dts
                         }
                         foundOperationMode = true;
                         break;
+                    case Utility.ConstAuthenticationUriPropName:
+                        if (cp.TypeConverter != string.Empty)
+                        {
+                            this.InternalFireError("Authentication Uri data type is incorrect.");
+                            return DTSValidationStatus.VS_ISCORRUPT;
+                        }
+                        foundAuthentication = true;
+                        break;
                     default:
                         break;
                 }
@@ -284,6 +314,12 @@ namespace Martin.SQLServer.Dts
             if (!foundChannelSeparation)
             {
                 this.InternalFireError(string.Format("Custom Property {0} is missing.", Utility.ChannelSeparationPropName));
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+
+            if (!foundAuthentication)
+            {
+                this.InternalFireError(string.Format("Custom Property {0} is missing.", Utility.AuthenticationUriPropName));
                 return DTSValidationStatus.VS_ISCORRUPT;
             }
 
@@ -386,12 +422,74 @@ namespace Martin.SQLServer.Dts
         public override void PreExecute()
         {
             bool fireAgain = true;
+            string DefaultLocale = string.Empty;
             this.ComponentMetaData.FireInformation(0, this.ComponentMetaData.Name, "Pre-Execute phase is beginning.", string.Empty, 0, ref fireAgain);
             // Load up the custom properties.
             SubscriptionKey = (string)ComponentMetaData.CustomPropertyCollection[Utility.SubscriptionKeyPropName].Value;
             OperationMode = (OperationModeEnum)ComponentMetaData.CustomPropertyCollection[Utility.OperationModePropName].Value;
             Language = (SpeechLanguageEnum)ComponentMetaData.CustomPropertyCollection[Utility.LanguagePropName].Value;
             ChannelSeparation = (ChannelSeparationEnum)ComponentMetaData.CustomPropertyCollection[Utility.ChannelSeparationPropName].Value;
+            // ToDo: Implement this!
+            AuthenticationUri = string.Empty;
+            switch (OperationMode)
+            {
+                case OperationModeEnum.ShortDictation:
+//RM                     speechRecognitionMode = SpeechRecognitionMode.ShortPhrase;
+                    break;
+                case OperationModeEnum.LongDictation:
+//RM                     speechRecognitionMode = SpeechRecognitionMode.LongDictation;
+                    break;
+                default:
+//RM                     speechRecognitionMode = SpeechRecognitionMode.LongDictation;
+                    break;
+            }
+
+            switch (Language)
+            {
+                case SpeechLanguageEnum.AmericanEnglish:
+                    DefaultLocale = "en-us";
+                    break;
+                case SpeechLanguageEnum.BritishEnglish:
+                    DefaultLocale = "en-gb";
+                    break;
+                case SpeechLanguageEnum.German:
+                    DefaultLocale = "de-de";
+                    break;
+                case SpeechLanguageEnum.Spanish:
+                    DefaultLocale = "es-es";
+                    break;
+                case SpeechLanguageEnum.French:
+                    DefaultLocale = "fr-fr";
+                    break;
+                case SpeechLanguageEnum.Italian:
+                    DefaultLocale = "it-it";
+                    break;
+                case SpeechLanguageEnum.Mandarin:
+                    DefaultLocale = "zh-cn";
+                    break;
+                default:
+                    DefaultLocale = "en-us";
+                    break;
+            }
+
+            //RM             this.dataClient = SpeechRecognitionServiceFactory.CreateDataClient(
+            //RM             this.speechRecognitionMode,
+            //RM             DefaultLocale,
+            //RM             this.SubscriptionKey);
+            //RM             this.dataClient.AuthenticationUri = this.AuthenticationUri;
+
+            // Event handlers for speech recognition results
+            //RM             if (this.speechRecognitionMode == SpeechRecognitionMode.ShortPhrase)
+            //RM             {
+            //RM             this.dataClient.OnResponseReceived += this.OnDataShortPhraseResponseReceivedHandler;
+            //RM         }
+            //RM             else
+            //RM             {
+            //RM             this.dataClient.OnResponseReceived += this.OnDataDictationResponseReceivedHandler;
+            //RM         }
+
+            //this.dataClient.OnPartialResponseReceived += this.OnPartialResponseReceivedHandler;
+            //RM             this.dataClient.OnConversationError += this.OnConversationErrorHandler;
             base.PreExecute();
         }
         #endregion
@@ -503,6 +601,17 @@ namespace Martin.SQLServer.Dts
             channelSeparationProperty.Value = ChannelSeparationEnum.MonoIgnore;
         }
 
+        private static void AddAuthenticationUriProperty(IDTSComponentMetaData100 componentMetaData)
+        {
+            IDTSCustomProperty100 authenticationUriProperty = componentMetaData.CustomPropertyCollection.New();
+            authenticationUriProperty.Name = Utility.AuthenticationUriPropName;
+            authenticationUriProperty.Description = "Enter the Uri for the Speech API Authentication endpoint.";
+            authenticationUriProperty.ContainsID = false;
+            authenticationUriProperty.EncryptionRequired = false;
+            authenticationUriProperty.ExpressionType = DTSCustomPropertyExpressionType.CPET_NOTIFY;
+            //authenticationUriProperty.Value = String.Empty;
+        }
+
         #region AddOutputTypeProperty
         /// <summary>
         /// Creates the new custom property to hold the output type.
@@ -537,5 +646,105 @@ namespace Martin.SQLServer.Dts
         }
         #endregion
 
+
+#if asdfasdf
+#region Speech Client Interaction
+
+        /// <summary>
+        /// Called when a final response is received;
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="SpeechResponseEventArgs"/> instance containing the event data.</param>
+        private void OnDataShortPhraseResponseReceivedHandler(object sender, SpeechResponseEventArgs e)
+        {
+            Dispatcher.CurrentDispatcher.Invoke((Action)(() =>
+            {
+                bool fireAgain = true;
+                this.ComponentMetaData.FireInformation(0, this.ComponentMetaData.Name, "OnDataShortPhraseResponseReceivedHandler has been fired.", string.Empty, 0, ref fireAgain);
+                this.WriteResponseResult(e);
+            }));
+        }
+
+
+        /// <summary>
+        /// Writes the response result.
+        /// </summary>
+        /// <param name="e">The <see cref="SpeechResponseEventArgs"/> instance containing the event data.</param>
+        private void WriteResponseResult(SpeechResponseEventArgs e)
+        {
+            if (e.PhraseResponse.Results.Length == 0)
+            {
+                bool fireAgain = true;
+                this.ComponentMetaData.FireInformation(0, this.ComponentMetaData.Name, "No phrase response is available.", string.Empty, 0, ref fireAgain);
+                //this.WriteLine("No phrase response is available.");
+            }
+            else
+            {
+                //this.WriteLine("********* Final n-BEST Results *********");
+                for (int i = 0; i < e.PhraseResponse.Results.Length; i++)
+                {
+                    //this.WriteLine(
+                    //    "[{0}] Confidence={1}, Text=\"{2}\"",
+                    //    i,
+                    //    e.PhraseResponse.Results[i].Confidence,
+                    //    e.PhraseResponse.Results[i].DisplayText);
+                }
+
+                //this.WriteLine();
+            }
+        }
+
+        /// <summary>
+        /// Called when a final response is received;
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="SpeechResponseEventArgs"/> instance containing the event data.</param>
+        private void OnDataDictationResponseReceivedHandler(object sender, SpeechResponseEventArgs e)
+        {
+            //if (e.PhraseResponse.RecognitionStatus == RecognitionStatus.EndOfDictation ||
+            //    e.PhraseResponse.RecognitionStatus == RecognitionStatus.DictationEndSilenceTimeout)
+            //{
+                Dispatcher.CurrentDispatcher.Invoke(
+                    (Action)(() =>
+                    {
+                        bool fireAgain = true;
+                        this.ComponentMetaData.FireInformation(0, this.ComponentMetaData.Name, "OnDataShortPhraseResponseReceivedHandler has been fired.", string.Empty, 0, ref fireAgain);
+                        this.WriteResponseResult(e);
+                    }));
+            //}
+        }
+
+        /// <summary>
+        /// Called when a partial response is received.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="PartialSpeechResponseEventArgs"/> instance containing the event data.</param>
+        private void OnPartialResponseReceivedHandler(object sender, PartialSpeechResponseEventArgs e)
+        {
+            //this.WriteLine("--- Partial result received by OnPartialResponseReceivedHandler() ---");
+            //this.WriteLine("{0}", e.PartialResult);
+            //this.WriteLine();
+        }
+
+        /// <summary>
+        /// Called when an error is received.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="SpeechErrorEventArgs"/> instance containing the event data.</param>
+        private void OnConversationErrorHandler(object sender, SpeechErrorEventArgs e)
+        {
+            Dispatcher.CurrentDispatcher.Invoke(() =>
+            {
+                // Do Nothing!
+            });
+
+            //this.WriteLine("--- Error received by OnConversationErrorHandler() ---");
+            //this.WriteLine("Error code: {0}", e.SpeechErrorCode.ToString());
+            //this.WriteLine("Error text: {0}", e.SpeechErrorText);
+            //this.WriteLine();
+        }
+
+#endregion
+#endif
     }
 }
