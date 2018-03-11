@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.CognitiveServices.SpeechRecognition;
+using Microsoft.Bing.Speech;
 using Microsoft.SqlServer.Dts.Pipeline;
 using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using Microsoft.SqlServer.Dts.Runtime.Wrapper;
@@ -98,15 +98,9 @@ namespace Martin.SQLServer.Dts
         private PipelineBuffer outputBuffer;
 
         /// <summary>
-        /// The data recognition client
+        /// The speech recognition client
         /// </summary>
-        private DataRecognitionClient dataClient;
-
-        /// <summary>
-        /// Stores the recognition mode.  Retrieved from custom properties.
-        /// </summary>
-        /// This breaks the tests, as there is a COMException 0xC0048021 being thrown.
-        private SpeechRecognitionMode speechRecognitionMode;
+        private SpeechClient speechClient;
 
         /// <summary>
         /// Stores the URI to connect to the Authentication service.
@@ -651,99 +645,7 @@ namespace Martin.SQLServer.Dts
 //#if asdfasdf
 #region Speech Client Interaction
 
-        /// <summary>
-        /// Called when a final response is received;
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="SpeechResponseEventArgs"/> instance containing the event data.</param>
-        private void OnDataShortPhraseResponseReceivedHandler(object sender, SpeechResponseEventArgs e)
-        {
-            Dispatcher.CurrentDispatcher.Invoke((Action)(() =>
-            {
-                bool fireAgain = true;
-                this.ComponentMetaData.FireInformation(0, this.ComponentMetaData.Name, "OnDataShortPhraseResponseReceivedHandler has been fired.", string.Empty, 0, ref fireAgain);
-                this.WriteResponseResult(e);
-            }));
-        }
 
-
-        /// <summary>
-        /// Writes the response result.
-        /// </summary>
-        /// <param name="e">The <see cref="SpeechResponseEventArgs"/> instance containing the event data.</param>
-        private void WriteResponseResult(SpeechResponseEventArgs e)
-        {
-            if (e.PhraseResponse.Results.Length == 0)
-            {
-                bool fireAgain = true;
-                this.ComponentMetaData.FireInformation(0, this.ComponentMetaData.Name, "No phrase response is available.", string.Empty, 0, ref fireAgain);
-                //this.WriteLine("No phrase response is available.");
-            }
-            else
-            {
-                //this.WriteLine("********* Final n-BEST Results *********");
-                for (int i = 0; i < e.PhraseResponse.Results.Length; i++)
-                {
-                    //this.WriteLine(
-                    //    "[{0}] Confidence={1}, Text=\"{2}\"",
-                    //    i,
-                    //    e.PhraseResponse.Results[i].Confidence,
-                    //    e.PhraseResponse.Results[i].DisplayText);
-                }
-
-                //this.WriteLine();
-            }
-        }
-
-        /// <summary>
-        /// Called when a final response is received;
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="SpeechResponseEventArgs"/> instance containing the event data.</param>
-        private void OnDataDictationResponseReceivedHandler(object sender, SpeechResponseEventArgs e)
-        {
-            //if (e.PhraseResponse.RecognitionStatus == RecognitionStatus.EndOfDictation ||
-            //    e.PhraseResponse.RecognitionStatus == RecognitionStatus.DictationEndSilenceTimeout)
-            //{
-                Dispatcher.CurrentDispatcher.Invoke(
-                    (Action)(() =>
-                    {
-                        bool fireAgain = true;
-                        this.ComponentMetaData.FireInformation(0, this.ComponentMetaData.Name, "OnDataShortPhraseResponseReceivedHandler has been fired.", string.Empty, 0, ref fireAgain);
-                        this.WriteResponseResult(e);
-                    }));
-            //}
-        }
-
-        /// <summary>
-        /// Called when a partial response is received.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="PartialSpeechResponseEventArgs"/> instance containing the event data.</param>
-        private void OnPartialResponseReceivedHandler(object sender, PartialSpeechResponseEventArgs e)
-        {
-            //this.WriteLine("--- Partial result received by OnPartialResponseReceivedHandler() ---");
-            //this.WriteLine("{0}", e.PartialResult);
-            //this.WriteLine();
-        }
-
-        /// <summary>
-        /// Called when an error is received.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="SpeechErrorEventArgs"/> instance containing the event data.</param>
-        private void OnConversationErrorHandler(object sender, SpeechErrorEventArgs e)
-        {
-            Dispatcher.CurrentDispatcher.Invoke(() =>
-            {
-                // Do Nothing!
-            });
-
-            //this.WriteLine("--- Error received by OnConversationErrorHandler() ---");
-            //this.WriteLine("Error code: {0}", e.SpeechErrorCode.ToString());
-            //this.WriteLine("Error text: {0}", e.SpeechErrorText);
-            //this.WriteLine();
-        }
 
 #endregion
 //#endif
