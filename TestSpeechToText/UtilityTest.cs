@@ -81,11 +81,20 @@ namespace Martin.SQLServer.Dts.Tests
         }
 
         [TestMethod()]
-        public void AuthenticationUriPropNameTest()
+        public void ShortPhraseUrlPropNameTest()
         {
             string actual;
-            actual = Utility.AuthenticationUriPropName;
-            Assert.AreEqual("AuthenticationUri", actual);
+            actual = Utility.ShortPhraseUrlPropName;
+            Assert.AreEqual("ShortPhraseUrl", actual);
         }
+
+        [TestMethod()]
+        public void LongPhraseUrlPropNameTest()
+        {
+            string actual;
+            actual = Utility.LongPhraseUrlPropName;
+            Assert.AreEqual("LongPhraseUrl", actual);
+        }
+
     }
 }

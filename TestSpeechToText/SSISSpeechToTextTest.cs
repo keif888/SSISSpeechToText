@@ -26,7 +26,7 @@ namespace Martin.SQLServer.Dts.Tests
 
             speechToTextInstance.ProvideComponentProperties();
 
-            int intExpected = 6;  // Add 1 to the number that the component added, as there is a custom MS one as well.
+            int intExpected = 7;  // Add 1 to the number that the component added, as there is a custom MS one as well.
             int intActual = speechToText.CustomPropertyCollection.Count;
             Assert.AreEqual(intExpected, intActual, "Custom Property Collection Count is wrong");
 
@@ -49,9 +49,14 @@ namespace Martin.SQLServer.Dts.Tests
             Assert.AreEqual(cpActual.ExpressionType, DTSCustomPropertyExpressionType.CPET_NONE, "Expression type on ChannelSeparationPropName is wrong");
             Assert.AreEqual(cpActual.TypeConverter, typeof(SSISSpeechToText.ChannelSeparationEnum).AssemblyQualifiedName, "Type Converter on ChannelSeparationPropName is wrong");
 
-            cpActual = speechToText.CustomPropertyCollection[Utility.AuthenticationUriPropName];
-            Assert.AreEqual(cpActual.Name, Utility.AuthenticationUriPropName, "Property name is wrong");
-            Assert.AreEqual(cpActual.ExpressionType, DTSCustomPropertyExpressionType.CPET_NOTIFY, "Expression type on AuthenticationUriPropName is wrong");
+            cpActual = speechToText.CustomPropertyCollection[Utility.ShortPhraseUrlPropName];
+            Assert.AreEqual(Utility.ShortPhraseUrlPropName, cpActual.Name, "Property name is wrong");
+            Assert.AreEqual(DTSCustomPropertyExpressionType.CPET_NOTIFY, cpActual.ExpressionType, "Expression type on ShortPhraseUrlPropName is wrong");
+            Assert.AreEqual(string.Empty, cpActual.TypeConverter, "Type Converter on AuthenticationUriPropName is wrong");
+
+            cpActual = speechToText.CustomPropertyCollection[Utility.LongPhraseUrlPropName];
+            Assert.AreEqual(Utility.LongPhraseUrlPropName, cpActual.Name, "Property name is wrong");
+            Assert.AreEqual(DTSCustomPropertyExpressionType.CPET_NOTIFY, cpActual.ExpressionType, "Expression type on LongPhraseUrlPropName is wrong");
             Assert.AreEqual(string.Empty, cpActual.TypeConverter, "Type Converter on AuthenticationUriPropName is wrong");
 
             intExpected = 1;
@@ -387,7 +392,7 @@ namespace Martin.SQLServer.Dts.Tests
 
 
         [TestMethod]
-        public void TestValidateCustomProperty_AuthenticationUri_Missing()
+        public void TestValidateCustomProperty_ShortPhraseUrl_Missing()
         {
             Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
             Executable exec = package.Executables.Add("STOCK:PipelineTask");
@@ -402,14 +407,40 @@ namespace Martin.SQLServer.Dts.Tests
 
             speechToTextInstance.ProvideComponentProperties();
             speechToText.CustomPropertyCollection[Utility.SubscriptionKeyPropName].Value = "NotTheDefault";
-            speechToText.CustomPropertyCollection.RemoveObjectByID(speechToText.CustomPropertyCollection[Utility.AuthenticationUriPropName].ID);
+            speechToText.CustomPropertyCollection.RemoveObjectByID(speechToText.CustomPropertyCollection[Utility.ShortPhraseUrlPropName].ID);
             speechToText.CustomPropertyCollection.New();
 
             DTSValidationStatus actual = speechToTextInstance.Validate();
             DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
 
             Assert.AreEqual(expected, actual);
-            Assert.AreEqual("[Error] SSIS Speech To Text: Custom Property AuthenticationUri is missing.", events.errorMessages[0]);
+            Assert.AreEqual("[Error] SSIS Speech To Text: Custom Property ShortPhraseUrl is missing.", events.errorMessages[0]);
+        }
+
+        [TestMethod]
+        public void TestValidateCustomProperty_LongPhraseUrl_Missing()
+        {
+            Microsoft.SqlServer.Dts.Runtime.Package package = new Microsoft.SqlServer.Dts.Runtime.Package();
+            Executable exec = package.Executables.Add("STOCK:PipelineTask");
+            Microsoft.SqlServer.Dts.Runtime.TaskHost thMainPipe = exec as Microsoft.SqlServer.Dts.Runtime.TaskHost;
+            MainPipe dataFlowTask = thMainPipe.InnerObject as MainPipe;
+            ComponentEventHandler events = new ComponentEventHandler();
+            dataFlowTask.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
+
+            IDTSComponentMetaData100 speechToText = dataFlowTask.ComponentMetaDataCollection.New();
+            speechToText.ComponentClassID = typeof(Martin.SQLServer.Dts.SSISSpeechToText).AssemblyQualifiedName;
+            CManagedComponentWrapper speechToTextInstance = speechToText.Instantiate();
+
+            speechToTextInstance.ProvideComponentProperties();
+            speechToText.CustomPropertyCollection[Utility.SubscriptionKeyPropName].Value = "NotTheDefault";
+            speechToText.CustomPropertyCollection.RemoveObjectByID(speechToText.CustomPropertyCollection[Utility.LongPhraseUrlPropName].ID);
+            speechToText.CustomPropertyCollection.New();
+
+            DTSValidationStatus actual = speechToTextInstance.Validate();
+            DTSValidationStatus expected = DTSValidationStatus.VS_ISCORRUPT;
+
+            Assert.AreEqual(expected, actual);
+            Assert.AreEqual("[Error] SSIS Speech To Text: Custom Property LongPhraseUrl is missing.", events.errorMessages[0]);
         }
 
         [TestMethod]

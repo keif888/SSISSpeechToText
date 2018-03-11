@@ -86,12 +86,21 @@ namespace Martin.SQLServer.Dts
             }
         }
 
-        internal const string ConstAuthenticationUriPropName = "AuthenticationUri";
-        public static string AuthenticationUriPropName
+        internal const string ConstShortPhraseUrlPropName = "ShortPhraseUrl";
+        public static string ShortPhraseUrlPropName
         {
             get
             {
-                return ConstAuthenticationUriPropName;
+                return ConstShortPhraseUrlPropName;
+            }
+        }
+
+        internal const string ConstLongPhraseUrlPropName = "LongPhraseUrl";
+        public static string LongPhraseUrlPropName
+        {
+            get
+            {
+                return ConstLongPhraseUrlPropName;
             }
         }
     }

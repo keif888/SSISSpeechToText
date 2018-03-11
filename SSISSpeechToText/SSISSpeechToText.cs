@@ -103,10 +103,9 @@ namespace Martin.SQLServer.Dts
         private SpeechClient speechClient;
 
         /// <summary>
-        /// Stores the URI to connect to the Authentication service.
-        /// ToDo: Implement this as a Custom Property, and add to UI.
+        /// Stores the URI to connect to the Speech service.
         /// </summary>
-        private string AuthenticationUri;
+        private Uri SpeechServiceUri;
 
         #endregion
 
@@ -131,7 +130,8 @@ namespace Martin.SQLServer.Dts
             SSISSpeechToText.AddOperationModeProperty(this.ComponentMetaData);
             SSISSpeechToText.AddLanguageProperty(this.ComponentMetaData);
             SSISSpeechToText.AddChannelSeparationProperty(this.ComponentMetaData);
-            SSISSpeechToText.AddAuthenticationUriProperty(this.ComponentMetaData);
+            SSISSpeechToText.AddShortPhraseUrlProperty(this.ComponentMetaData);
+            SSISSpeechToText.AddLongPhraseUrlProperty(this.ComponentMetaData);
 
             // Name the input and output, and make the output asynchronous.
             ComponentMetaData.InputCollection[0].Name = "Input";
@@ -226,7 +226,7 @@ namespace Martin.SQLServer.Dts
                 return DTSValidationStatus.VS_ISCORRUPT;
             }
 
-            if (ComponentMetaData.CustomPropertyCollection.Count != 6)
+            if (ComponentMetaData.CustomPropertyCollection.Count != 7)
             {
                 this.InternalFireError("There is either to many or not enough custom properties.");
                 return DTSValidationStatus.VS_ISCORRUPT;
@@ -236,7 +236,8 @@ namespace Martin.SQLServer.Dts
             bool foundChannelSeparation = false;
             bool foundLanguage = false;
             bool foundOperationMode = false;
-            bool foundAuthentication = false;
+            bool foundShortPhrase = false;
+            bool foundLongPhrase = false;
 
             // Search for all the property names.
             foreach (IDTSCustomProperty100 cp in ComponentMetaData.CustomPropertyCollection)
@@ -275,13 +276,21 @@ namespace Martin.SQLServer.Dts
                         }
                         foundOperationMode = true;
                         break;
-                    case Utility.ConstAuthenticationUriPropName:
+                    case Utility.ConstShortPhraseUrlPropName:
                         if (cp.TypeConverter != string.Empty)
                         {
-                            this.InternalFireError("Authentication Uri data type is incorrect.");
+                            this.InternalFireError("Short Phrase Url data type is incorrect.");
                             return DTSValidationStatus.VS_ISCORRUPT;
                         }
-                        foundAuthentication = true;
+                        foundShortPhrase = true;
+                        break;
+                    case Utility.ConstLongPhraseUrlPropName:
+                        if (cp.TypeConverter != string.Empty)
+                        {
+                            this.InternalFireError("Long Phrase Url data type is incorrect.");
+                            return DTSValidationStatus.VS_ISCORRUPT;
+                        }
+                        foundLongPhrase = true;
                         break;
                     default:
                         break;
@@ -312,9 +321,15 @@ namespace Martin.SQLServer.Dts
                 return DTSValidationStatus.VS_ISCORRUPT;
             }
 
-            if (!foundAuthentication)
+            if (!foundShortPhrase)
             {
-                this.InternalFireError(string.Format("Custom Property {0} is missing.", Utility.AuthenticationUriPropName));
+                this.InternalFireError(string.Format("Custom Property {0} is missing.", Utility.ShortPhraseUrlPropName));
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+
+            if (!foundLongPhrase)
+            {
+                this.InternalFireError(string.Format("Custom Property {0} is missing.", Utility.LongPhraseUrlPropName));
                 return DTSValidationStatus.VS_ISCORRUPT;
             }
 
@@ -425,17 +440,18 @@ namespace Martin.SQLServer.Dts
             Language = (SpeechLanguageEnum)ComponentMetaData.CustomPropertyCollection[Utility.LanguagePropName].Value;
             ChannelSeparation = (ChannelSeparationEnum)ComponentMetaData.CustomPropertyCollection[Utility.ChannelSeparationPropName].Value;
             // ToDo: Implement this!
-            AuthenticationUri = string.Empty;
+            string ShortPhaseUrl = (string)ComponentMetaData.CustomPropertyCollection[Utility.ShortPhraseUrlPropName].Value;
+            string LongPhaseUrl = (string)ComponentMetaData.CustomPropertyCollection[Utility.LongPhraseUrlPropName].Value;
             switch (OperationMode)
             {
                 case OperationModeEnum.ShortDictation:
-//RM                     speechRecognitionMode = SpeechRecognitionMode.ShortPhrase;
+                    SpeechServiceUri = new Uri(ShortPhaseUrl);
                     break;
                 case OperationModeEnum.LongDictation:
-//RM                     speechRecognitionMode = SpeechRecognitionMode.LongDictation;
+                    SpeechServiceUri = new Uri(LongPhaseUrl);
                     break;
                 default:
-//RM                     speechRecognitionMode = SpeechRecognitionMode.LongDictation;
+                    SpeechServiceUri = new Uri(LongPhaseUrl);
                     break;
             }
 
@@ -471,7 +487,7 @@ namespace Martin.SQLServer.Dts
             //RM             this.speechRecognitionMode,
             //RM             DefaultLocale,
             //RM             this.SubscriptionKey);
-            //RM             this.dataClient.AuthenticationUri = this.AuthenticationUri;
+            //RM             this.dataClient.ShortPhraseUrl = this.ShortPhraseUrl;
 
             // Event handlers for speech recognition results
             //RM             if (this.speechRecognitionMode == SpeechRecognitionMode.ShortPhrase)
@@ -596,17 +612,27 @@ namespace Martin.SQLServer.Dts
             channelSeparationProperty.Value = ChannelSeparationEnum.MonoIgnore;
         }
 
-        private static void AddAuthenticationUriProperty(IDTSComponentMetaData100 componentMetaData)
+        private static void AddShortPhraseUrlProperty(IDTSComponentMetaData100 componentMetaData)
         {
-            IDTSCustomProperty100 authenticationUriProperty = componentMetaData.CustomPropertyCollection.New();
-            authenticationUriProperty.Name = Utility.AuthenticationUriPropName;
-            authenticationUriProperty.Description = "Enter the Uri for the Speech API Authentication endpoint.";
-            authenticationUriProperty.ContainsID = false;
-            authenticationUriProperty.EncryptionRequired = false;
-            authenticationUriProperty.ExpressionType = DTSCustomPropertyExpressionType.CPET_NOTIFY;
-            //authenticationUriProperty.Value = String.Empty;
+            IDTSCustomProperty100 shortPhraseUrlProperty = componentMetaData.CustomPropertyCollection.New();
+            shortPhraseUrlProperty.Name = Utility.ShortPhraseUrlPropName;
+            shortPhraseUrlProperty.Description = "Enter the Uri for the Speech API Short Phrase endpoint.";
+            shortPhraseUrlProperty.ContainsID = false;
+            shortPhraseUrlProperty.EncryptionRequired = false;
+            shortPhraseUrlProperty.ExpressionType = DTSCustomPropertyExpressionType.CPET_NOTIFY;
+            shortPhraseUrlProperty.Value = @"wss://speech.platform.bing.com/api/service/recognition";
         }
 
+        private static void AddLongPhraseUrlProperty(IDTSComponentMetaData100 componentMetaData)
+        {
+            IDTSCustomProperty100 longPhraseUrlProperty = componentMetaData.CustomPropertyCollection.New();
+            longPhraseUrlProperty.Name = Utility.LongPhraseUrlPropName;
+            longPhraseUrlProperty.Description = "Enter the Uri for the Speech API Long Phrase endpoint.";
+            longPhraseUrlProperty.ContainsID = false;
+            longPhraseUrlProperty.EncryptionRequired = false;
+            longPhraseUrlProperty.ExpressionType = DTSCustomPropertyExpressionType.CPET_NOTIFY;
+            longPhraseUrlProperty.Value = @"wss://speech.platform.bing.com/api/service/recognition/continuous";
+        }
         #region AddOutputTypeProperty
         /// <summary>
         /// Creates the new custom property to hold the output type.
