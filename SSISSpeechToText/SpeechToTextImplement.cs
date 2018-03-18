@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.Bing.Speech;
 using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using CognitiveServicesAuthorization;
+using NAudio;
+using NAudio.Wave;
 
 namespace Martin.SQLServer.Dts
 {
@@ -48,22 +50,56 @@ namespace Martin.SQLServer.Dts
 
         private Preferences _preferences;
 
+
+
+
+
+
         public async Task ExecuteRecogniseAsync(string audioFile)
         {
+            FileInfo inputFileInfo = new FileInfo(audioFile);
+            WaveStream audioStream = null;
+            Mp3FileReader mp3Stream = null;
+
+            switch (inputFileInfo.Extension.ToLower())
+            {
+                case ".mp3":
+                    mp3Stream = new Mp3FileReader(audioFile);
+                    audioStream = WaveFormatConversionStream.CreatePcmStream(mp3Stream);
+                    // Have to send to a physical file, as the NAudio stream doesn't interact with the
+                    // Speech client nicely.
+                    // ToDo: refactor to temporary file name.
+                    WaveFileWriter.CreateWaveFile("tempfile.wav", audioStream);
+                    break;
+                default:
+                    break;
+            }
+
+            //using (var inputReader = new AudioFileReader(audioFile))
+            //{
+            //    var mono = inputReader.ToMono(0.5f, 0.5f);
+                
+            //}
             // Create a a speech client
             using (var speechClient = new SpeechClient(this._preferences))
             {
                 speechClient.SubscribeToRecognitionResult(this.OnRecognitionResultAsync);
 
-                // create an audio content and pass it a stream.
-                using (var audio = new FileStream(audioFile, FileMode.Open, FileAccess.Read))
-                {
-                    var deviceMetadata = new DeviceMetadata(DeviceType.Near, DeviceFamily.Desktop, NetworkType.Ethernet, OsName.Windows, "1607", "HyperV", "HyperV");
-                    var applicationMetadata = new ApplicationMetadata("SSISSpeachToText", "1.0.0.0");
-                    var requestMetadata = new RequestMetadata(Guid.NewGuid(), deviceMetadata, applicationMetadata, "SQL Server Integration Services");
-
+                var deviceMetadata = new DeviceMetadata(DeviceType.Near, DeviceFamily.Desktop, NetworkType.Ethernet, OsName.Windows, "1607", "HyperV", "HyperV");
+                var applicationMetadata = new ApplicationMetadata("SSISSpeachToText", "1.0.0.0");
+                var requestMetadata = new RequestMetadata(Guid.NewGuid(), deviceMetadata, applicationMetadata, "SQL Server Integration Services");
+                // ToDo: refactor to temporary file name.
+                using (var audio = new FileStream("tempfile.wav", FileMode.Open, FileAccess.Read))
                     await speechClient.RecognizeAsync(new SpeechInput(audio, requestMetadata), this.cts.Token).ConfigureAwait(false);
-                }
+            }
+
+            if (audioStream != null)
+            {
+                audioStream.Dispose();
+            }
+            if (mp3Stream != null)
+            {
+                mp3Stream.Dispose();
             }
         }
 
