@@ -11,6 +11,20 @@ using CognitiveServicesAuthorization;
 using NAudio;
 using NAudio.Wave;
 
+
+
+///  ToDo:
+/// <summary>
+/// Change to using client instead of server DLL's.
+/// Add x86/x64 DLL switching as per:
+/// https://support.microsoft.com/en-au/help/837908/how-to-load-an-assembly-at-runtime-that-is-located-in-a-folder-that-is
+/// Potentially pull this entire class out to 2 separate DLL's, which are to be installed where the component can't find them, and use the above to load them.
+/// 
+/// Investigate migration to the preview speech services, as they provide handling for dual channel, and start of speech timings.
+/// 
+/// </summary>
+
+
 namespace Martin.SQLServer.Dts
 {
     public class SpeechToTextImplement
@@ -54,12 +68,18 @@ namespace Martin.SQLServer.Dts
 
 
 
-
+        /// <summary>
+        /// Takes a passed in file that is assumed to be mono and PCM encoded,
+        /// and sends it to the speech client.
+        /// </summary>
+        /// <param name="audioFile">The full path and file name of a PCM encoded MONO channel file.</param>
+        /// <returns></returns>
         public async Task ExecuteRecogniseAsync(string audioFile)
         {
             FileInfo inputFileInfo = new FileInfo(audioFile);
             WaveStream audioStream = null;
             Mp3FileReader mp3Stream = null;
+            string tempAudioFile = audioFile;
 
             switch (inputFileInfo.Extension.ToLower())
             {
@@ -68,10 +88,11 @@ namespace Martin.SQLServer.Dts
                     audioStream = WaveFormatConversionStream.CreatePcmStream(mp3Stream);
                     // Have to send to a physical file, as the NAudio stream doesn't interact with the
                     // Speech client nicely.
-                    // ToDo: refactor to temporary file name.
-                    WaveFileWriter.CreateWaveFile("tempfile.wav", audioStream);
+                    tempAudioFile = System.IO.Path.GetTempFileName();
+                    WaveFileWriter.CreateWaveFile(tempAudioFile, audioStream);
                     break;
                 default:
+                    // Try and send the file to the speechClient, in the hope it is a PCM encoded file.
                     break;
             }
 
@@ -88,8 +109,7 @@ namespace Martin.SQLServer.Dts
                 var deviceMetadata = new DeviceMetadata(DeviceType.Near, DeviceFamily.Desktop, NetworkType.Ethernet, OsName.Windows, "1607", "HyperV", "HyperV");
                 var applicationMetadata = new ApplicationMetadata("SSISSpeachToText", "1.0.0.0");
                 var requestMetadata = new RequestMetadata(Guid.NewGuid(), deviceMetadata, applicationMetadata, "SQL Server Integration Services");
-                // ToDo: refactor to temporary file name.
-                using (var audio = new FileStream("tempfile.wav", FileMode.Open, FileAccess.Read))
+                using (var audio = new FileStream(tempAudioFile, FileMode.Open, FileAccess.Read))
                     await speechClient.RecognizeAsync(new SpeechInput(audio, requestMetadata), this.cts.Token).ConfigureAwait(false);
             }
 
